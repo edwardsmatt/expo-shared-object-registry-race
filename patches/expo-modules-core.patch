@@ -1,0 +1,26 @@
+diff --git a/android/src/main/java/expo/modules/kotlin/sharedobjects/SharedObjectRegistry.kt b/android/src/main/java/expo/modules/kotlin/sharedobjects/SharedObjectRegistry.kt
+index 8f7a27211fe30af7b6cff884db5ee7f4b0eb9450..3a6e65e48d19d301b7dd8479a18c3249d8c1879c 100644
+--- a/android/src/main/java/expo/modules/kotlin/sharedobjects/SharedObjectRegistry.kt
++++ b/android/src/main/java/expo/modules/kotlin/sharedobjects/SharedObjectRegistry.kt
+@@ -94,7 +94,9 @@ class SharedObjectRegistry(runtimeContext: RuntimeContext) {
+   }
+ 
+   internal fun toNativeObject(id: SharedObjectId): SharedObject {
+-    val native = pairs[id.ensureWasNotRelease()]?.first
++    val native = synchronized(this) {
++      pairs[id.ensureWasNotRelease()]?.first
++    }
+     return native ?: throw InvalidSharedObjectIdException()
+   }
+ 
+@@ -110,7 +112,9 @@ class SharedObjectRegistry(runtimeContext: RuntimeContext) {
+     }
+ 
+     val id = SharedObjectId(js.getProperty(sharedObjectIdPropertyName).getInt())
+-    return pairs[id]?.first
++    return synchronized(this) {
++      pairs[id]?.first
++    }
+   }
+ 
+   internal fun toJavaScriptObjectOrNull(native: SharedObject): JavaScriptObject? {
